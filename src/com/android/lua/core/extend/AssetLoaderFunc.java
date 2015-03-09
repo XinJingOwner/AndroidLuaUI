@@ -1,6 +1,7 @@
 package com.android.lua.core.extend;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
 
@@ -13,10 +14,20 @@ import android.content.res.AssetManager;
 
 public class AssetLoaderFunc extends JavaFunction {
     private final Context mContext;
+    private String mSubDirectory;
 
-    public AssetLoaderFunc(Context context, LuaState L) {
+    public AssetLoaderFunc(LuaState L, Context context) {
         super(L);
         this.mContext = context.getApplicationContext();
+    }
+
+    public void setSubDirectory(String subdir) {
+        if (subdir == null || subdir.length() == 0
+                || subdir.trim().length() == 0) {
+            return;
+        }
+
+        this.mSubDirectory = subdir;
     }
 
     @Override
@@ -25,11 +36,8 @@ public class AssetLoaderFunc extends JavaFunction {
 
         AssetManager am = this.mContext.getAssets();
         try {
-            // String filename = TextUtils
-            // .isEmpty(LuaApplication.this.mLuaScriptPath) ? name
-            // + ".lua" : LuaApplication.this.mLuaScriptPath
-            // + File.separator + name + ".lua";
-            String filename = null;
+            String filename = this.mSubDirectory == null ? name + ".lua"
+                    : this.mSubDirectory + File.separator + name + ".lua";
             InputStream is = am.open(filename);
             byte[] bytes = readAll(is);
             this.mLuaState.LloadBuffer(bytes, name);

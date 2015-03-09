@@ -7,6 +7,11 @@ import org.keplerproject.luajava.LuaException;
 import org.keplerproject.luajava.LuaState;
 import org.keplerproject.luajava.LuaStateFactory;
 
+import android.content.Context;
+
+import com.android.lua.core.extend.AssetLoaderFunc;
+import com.android.lua.core.extend.PrintFunc;
+
 /**
  * Lua engine.
  * @author lizhennian
@@ -105,6 +110,7 @@ public class LuaEngine {
      *         other if the string is excuted wrongly.
      */
     public int executeString(String codes) {
+        this.safeEvalLua(codes);
         return 0;
     }
 
@@ -127,11 +133,64 @@ public class LuaEngine {
      *            script environment, that is to be executed.
      * @return The integer value returned from the script function.
      */
-    public int executeGlobalFunction(String functionName) {
-        return 0;
+    public int executeGlobalFunction(String functionName, Object... args) {
+        this.mLuaState.getField(LuaState.LUA_GLOBALSINDEX, functionName);
+
+        for (Object param : args) {
+            this.mLuaState.pushJavaObject(param);
+        }
+
+        return this.mLuaState.pcall(args.length, 0, 0);
     }
 
-    public String safeEvalLua(String src) {
+    /**
+     * Execute a scripted global function.
+     * <b>The function should not take any parameters and should return an
+     * integer.
+     * @param functionName
+     *            String object holding the name of the function, in the global
+     *            script environment, that is to be executed.
+     * @return The integer value returned from the script function.
+     */
+    public int executeObjectFunction(String objectName, String functionName,
+            Object... args) {
+        this.mLuaState.getGlobal(objectName);
+        this.mLuaState.getField(-1, functionName);
+
+        this.mLuaState.getGlobal(objectName);
+
+        for (Object param : args) {
+            this.mLuaState.pushJavaObject(param);
+        }
+
+        int error = this.mLuaState.pcall(1 + args.length, 0, 0);
+        this.mLuaState.pop(1);
+
+        return error;
+    }
+
+    public void useExtend(Context context) {
+        PrintFunc print = new PrintFunc(this.mLuaState);
+        try {
+            print.register("print");
+        } catch (LuaException e) {
+            e.printStackTrace();
+        }
+
+        AssetLoaderFunc assetLoader = new AssetLoaderFunc(this.mLuaState,
+                context);
+        assetLoader.setSubDirectory("luas");
+        try {
+            this.addLuaLoader(assetLoader);
+        } catch (LuaException e) {
+            e.printStackTrace();
+        }
+
+        this.addSearchPath(context.getFilesDir().getAbsolutePath());
+
+    }
+
+    private String safeEvalLua(String src) {
         String res = null;
 
         try {
@@ -143,7 +202,7 @@ public class LuaEngine {
         return res;
     }
 
-    public void evalLua(String src) throws LuaException {
+    private void evalLua(String src) throws LuaException {
         this.mLuaState.setTop(0);
         int error = this.mLuaState.LloadString(src);
         if (error == 0) {

@@ -4,7 +4,10 @@ import org.keplerproject.luajava.JavaFunction;
 import org.keplerproject.luajava.LuaException;
 import org.keplerproject.luajava.LuaState;
 
+import android.util.Log;
+
 public class PrintFunc extends JavaFunction {
+    private static final String TAG = "LuaPrint";
 
     public PrintFunc(LuaState L) {
         super(L);
@@ -34,6 +37,8 @@ public class PrintFunc extends JavaFunction {
 
             logBuilder.append(val);
         }
+
+        Log.i(TAG, logBuilder.toString());
 
         return 0;
     }
