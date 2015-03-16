@@ -92,7 +92,11 @@ public class LuaState {
      * Opens the library containing the luajava API
      */
     static {
-        System.loadLibrary(LUAJAVA_LIB);
+        try {
+            System.loadLibrary(LUAJAVA_LIB);
+        } catch (UnsatisfiedLinkError e) {
+            e.printStackTrace();
+        }
     }
 
     private CPtr luaState;
@@ -585,15 +589,15 @@ public class LuaState {
     }
 
     /**
-    <span class="apii">[-0, +1, <em>e</em>]</span>
-    <pre>int lua_getfield (lua_State *L, int index, const char *k);</pre>
-    <p>
-    Pushes onto the stack the value <code>t[k]</code>,
-    where <code>t</code> is the value at the given index.
-    As in Lua, this function may trigger a metamethod
-    for the "index" event (see <a href="#2.4">&sect;2.4</a>).
-    <p>
-    Returns the type of the pushed value.
+     * <span class="apii">[-0, +1, <em>e</em>]</span>
+     * <pre>int lua_getfield (lua_State *L, int index, const char *k);</pre>
+     * <p>
+     * Pushes onto the stack the value <code>t[k]</code>,
+     * where <code>t</code> is the value at the given index.
+     * As in Lua, this function may trigger a metamethod
+     * for the "index" event (see <a href="#2.4">&sect;2.4</a>).
+     * <p>
+     * Returns the type of the pushed value.
      */
     public void getField(int idx, String k) {
         this._getField(this.luaState, idx, k);
@@ -639,15 +643,15 @@ public class LuaState {
     }
 
     /**
-    <pre>void lua_rawseti (lua_State *L, int index, lua_Integer i);</pre>
-    <p>
-    Does the equivalent of <code>t[i] = v</code>,
-    where <code>t</code> is the table at the given index
-    and <code>v</code> is the value at the top of the stack.
-    <p>
-    This function pops the value from the stack.
-    The assignment is raw;
-    that is, it does not invoke metamethods.
+     * <pre>void lua_rawseti (lua_State *L, int index, lua_Integer i);</pre>
+     * <p>
+     * Does the equivalent of <code>t[i] = v</code>,
+     * where <code>t</code> is the table at the given index
+     * and <code>v</code> is the value at the top of the stack.
+     * <p>
+     * This function pops the value from the stack.
+     * The assignment is raw;
+     * that is, it does not invoke metamethods.
      */
     public void rawSetI(int idx, int n) {
         this._rawSetI(this.luaState, idx, n);
@@ -668,58 +672,64 @@ public class LuaState {
     }
 
     /**
-    <pre>int lua_pcall (lua_State *L, int nargs, int nresults, int msgh);</pre>
-    <p>
-    Calls a function in protected mode.
-    <p>
-    Both <code>nargs</code> and <code>nresults</code> have the same meaning as
-    in <a href="#lua_call"><code>lua_call</code></a>.
-    If there are no errors during the call,
-    <a href="#lua_pcall"><code>lua_pcall</code></a> behaves exactly like <a href="#lua_call"><code>lua_call</code></a>.
-    However, if there is any error,
-    <a href="#lua_pcall"><code>lua_pcall</code></a> catches it,
-    pushes a single value on the stack (the error message),
-    and returns an error code.
-    Like <a href="#lua_call"><code>lua_call</code></a>,
-    <a href="#lua_pcall"><code>lua_pcall</code></a> always removes the function
-    and its arguments from the stack.
-    <p>
-    If <code>msgh</code> is 0,
-    then the error message returned on the stack
-    is exactly the original error message.
-    Otherwise, <code>msgh</code> is the stack index of a
-    <em>message handler</em>.
-    (In the current implementation, this index cannot be a pseudo-index.)
-    In case of runtime errors,
-    this function will be called with the error message
-    and its return value will be the message
-    returned on the stack by <a href="#lua_pcall"><code>lua_pcall</code></a>.
-    <p>
-    Typically, the message handler is used to add more debug
-    information to the error message, such as a stack traceback.
-    Such information cannot be gathered after the return of <a href="#lua_pcall"><code>lua_pcall</code></a>,
-    since by then the stack has unwound.
-    <p>
-    The <a href="#lua_pcall"><code>lua_pcall</code></a> function returns one of the following constants
-    (defined in <code>lua.h</code>):
-    <ul>
-    <li><b><a name="pdf-LUA_OK"><code>LUA_OK</code></a> (0): </b>
-    success.</li>
-    <li><b><a name="pdf-LUA_ERRRUN"><code>LUA_ERRRUN</code></a>: </b>
-    a runtime error.
-    </li>
-    <li><b><a name="pdf-LUA_ERRMEM"><code>LUA_ERRMEM</code></a>: </b>
-    memory allocation error.
-    For such errors, Lua does not call the message handler.
-    </li>
-    <li><b><a name="pdf-LUA_ERRERR"><code>LUA_ERRERR</code></a>: </b>
-    error while running the message handler.
-    </li>
-    <li><b><a name="pdf-LUA_ERRGCMM"><code>LUA_ERRGCMM</code></a>: </b>
-    error while running a <code>__gc</code> metamethod.
-    (This error typically has no relation with the function being called.)
-    </li>
-    </ul>
+     * <pre>int lua_pcall (lua_State *L, int nargs, int nresults, int
+     * msgh);</pre>
+     * <p>
+     * Calls a function in protected mode.
+     * <p>
+     * Both <code>nargs</code> and <code>nresults</code> have the same meaning
+     * as
+     * in <a href="#lua_call"><code>lua_call</code></a>.
+     * If there are no errors during the call,
+     * <a href="#lua_pcall"><code>lua_pcall</code></a> behaves exactly like <a
+     * href="#lua_call"><code>lua_call</code></a>.
+     * However, if there is any error,
+     * <a href="#lua_pcall"><code>lua_pcall</code></a> catches it,
+     * pushes a single value on the stack (the error message),
+     * and returns an error code.
+     * Like <a href="#lua_call"><code>lua_call</code></a>,
+     * <a href="#lua_pcall"><code>lua_pcall</code></a> always removes the
+     * function
+     * and its arguments from the stack.
+     * <p>
+     * If <code>msgh</code> is 0,
+     * then the error message returned on the stack
+     * is exactly the original error message.
+     * Otherwise, <code>msgh</code> is the stack index of a
+     * <em>message handler</em>.
+     * (In the current implementation, this index cannot be a pseudo-index.)
+     * In case of runtime errors,
+     * this function will be called with the error message
+     * and its return value will be the message
+     * returned on the stack by <a href="#lua_pcall"><code>lua_pcall</code></a>.
+     * <p>
+     * Typically, the message handler is used to add more debug
+     * information to the error message, such as a stack traceback.
+     * Such information cannot be gathered after the return of <a
+     * href="#lua_pcall"><code>lua_pcall</code></a>,
+     * since by then the stack has unwound.
+     * <p>
+     * The <a href="#lua_pcall"><code>lua_pcall</code></a> function returns one
+     * of the following constants
+     * (defined in <code>lua.h</code>):
+     * <ul>
+     * <li><b><a name="pdf-LUA_OK"><code>LUA_OK</code></a> (0): </b>
+     * success.</li>
+     * <li><b><a name="pdf-LUA_ERRRUN"><code>LUA_ERRRUN</code></a>: </b>
+     * a runtime error.
+     * </li>
+     * <li><b><a name="pdf-LUA_ERRMEM"><code>LUA_ERRMEM</code></a>: </b>
+     * memory allocation error.
+     * For such errors, Lua does not call the message handler.
+     * </li>
+     * <li><b><a name="pdf-LUA_ERRERR"><code>LUA_ERRERR</code></a>: </b>
+     * error while running the message handler.
+     * </li>
+     * <li><b><a name="pdf-LUA_ERRGCMM"><code>LUA_ERRGCMM</code></a>: </b>
+     * error while running a <code>__gc</code> metamethod.
+     * (This error typically has no relation with the function being called.)
+     * </li>
+     * </ul>
      */
     // returns 0 if ok of one of the error codes defined
     public int pcall(int nArgs, int nResults, int errFunc) {
@@ -872,10 +882,10 @@ public class LuaState {
     // IMPLEMENTED C MACROS
 
     /**
-     <span class="apii">[-n, +0, &ndash;]</span>
-     <pre>void lua_pop (lua_State *L, int n);</pre>
-     <p>
-     Pops <code>n</code> elements from the stack.
+     * <span class="apii">[-n, +0, &ndash;]</span>
+     * <pre>void lua_pop (lua_State *L, int n);</pre>
+     * <p>
+     * Pops <code>n</code> elements from the stack.
      */
     public void pop(int n) {
         // setTop(- (n) - 1);
@@ -883,11 +893,11 @@ public class LuaState {
     }
 
     /**
-     <span class="apii">[-0, +1, <em>e</em>]</span>
-     <pre>int lua_getglobal (lua_State *L, const char *name);</pre>
-     <p>
-     Pushes onto the stack the value of the global <code>name</code>.
-     Returns the type of that value.
+     * <span class="apii">[-0, +1, <em>e</em>]</span>
+     * <pre>int lua_getglobal (lua_State *L, const char *name);</pre>
+     * <p>
+     * Pushes onto the stack the value of the global <code>name</code>.
+     * Returns the type of that value.
      * @param global
      */
     public synchronized void getGlobal(String global) {
@@ -897,11 +907,11 @@ public class LuaState {
     }
 
     /**
-    <pre>void lua_setglobal (lua_State *L, const char *name);</pre>
-    <p>
-    Pops a value from the stack and
-    sets it as the new value of global <code>name</code>.
-    */
+     * <pre>void lua_setglobal (lua_State *L, const char *name);</pre>
+     * <p>
+     * Pops a value from the stack and
+     * sets it as the new value of global <code>name</code>.
+     */
     public synchronized void setGlobal(String name) {
         // pushString(name);
         // insert(-2);

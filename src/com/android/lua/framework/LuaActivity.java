@@ -8,6 +8,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 
+import com.android.lua.core.LuaEngine;
+
 /**
  * Lua base activity.
  * @author lizhennian
@@ -18,14 +20,10 @@ public abstract class LuaActivity extends Activity {
 
     private String mLuaMainModuleName;
 
-    private LuaApplication mApplication;
-
     /** Called when the activity is first created. */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        this.mApplication = (LuaApplication) this.getApplication();
 
         try {
             this.getMetaData();
@@ -34,15 +32,16 @@ public abstract class LuaActivity extends Activity {
         }
 
         try {
-            this.mApplication.evalLua("require('" + this.mLuaMainModuleName
-                    + "')");
-
-            this.attachContext();
-
-            this.callLuaModuleMethod("onCreate", savedInstanceState);
+            LuaEngine.getInstance().executeString(
+                    "require('" + this.mLuaMainModuleName + "')");
         } catch (LuaException e) {
             e.printStackTrace();
         }
+
+        this.attachContext();
+
+        this.callLuaModuleMethod("onCreate", savedInstanceState);
+
     }
 
     @Override
@@ -94,6 +93,11 @@ public abstract class LuaActivity extends Activity {
     }
 
     protected void callLuaModuleMethod(String method, Object... args) {
-        this.mApplication.callLuaMethod(this.mLuaMainModuleName, method, args);
+        try {
+            LuaEngine.getInstance().executeModuleFunction(
+                    this.mLuaMainModuleName, method, args);
+        } catch (LuaException e) {
+            e.printStackTrace();
+        }
     }
 }

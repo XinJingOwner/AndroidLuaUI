@@ -45,8 +45,7 @@ public final class LuaJavaAPI {
     /**
      * Match package name, including the final '.'.
      */
-    private static Pattern sPattern = Pattern
-            .compile("^([a-zA-Z]+)([.][a-zA-Z]+)+[.]");
+    private static Pattern sPattern = Pattern.compile("^(\\w+)([.]\\w+)+[.]");
 
     private LuaJavaAPI() {
     }
@@ -542,7 +541,7 @@ public final class LuaJavaAPI {
 
                 L.addPackage(matcher.group());
             } else {
-                Log.d(TAG, "Invalid package name.");
+                Log.d(TAG, "Invalid package name. -" + packageName);
             }
         }
 

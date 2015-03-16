@@ -11,8 +11,15 @@ import org.keplerproject.luajava.LuaState;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.util.Log;
 
+/**
+ * Lua加载器.
+ * @author lizhennian
+ * @version 0.0.1
+ */
 public class AssetLoaderFunc extends JavaFunction {
+    private static final String TAG = "AssetLoaderFunc";
     private final Context mContext;
     private String mSubDirectory;
 
@@ -33,6 +40,7 @@ public class AssetLoaderFunc extends JavaFunction {
     @Override
     public int execute() throws LuaException {
         String name = this.mLuaState.toString(-1);
+        Log.d(TAG, "Require module name : " + name);
 
         AssetManager am = this.mContext.getAssets();
         try {

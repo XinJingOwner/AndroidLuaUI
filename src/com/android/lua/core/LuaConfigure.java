@@ -1,9 +1,9 @@
 package com.android.lua.core;
 
 /**
- * Lua runtime configuration.
+ * Lua 环境配置.
  * @author lizhennian
- * @version 0.0.1 2015-03-05
+ * @version 0.0.1
  */
 public class LuaConfigure {
 

@@ -6,8 +6,12 @@ import org.keplerproject.luajava.LuaState;
 
 import android.util.Log;
 
+/**
+ * @author lizhennian
+ * @version 0.0.1
+ */
 public class PrintFunc extends JavaFunction {
-    private static final String TAG = "LuaPrint";
+    private static final String TAG = "PrintFunc";
 
     public PrintFunc(LuaState L) {
         super(L);
